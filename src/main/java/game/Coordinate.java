@@ -18,16 +18,21 @@ public class Coordinate {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Coordinate))
-            return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        Coordinate c = (Coordinate) obj;
-        return c.x == this.x && c.y == this.y;
+        Coordinate that = (Coordinate) o;
+
+        if (x != that.x) return false;
+        return y == that.y;
+
     }
 
     @Override
     public int hashCode() {
-        return ("" + x + ":" + y).hashCode();
+        int result = x;
+        result = 31 * result + y;
+        return result;
     }
 }

@@ -16,7 +16,6 @@ public class App {
         String gameId = args[0];
         int player = Integer.parseInt(args[1]);
 
-
         AbstractRobot robot = new VeryDumbRobot(gameId,player );
 
         robot.initiate();
