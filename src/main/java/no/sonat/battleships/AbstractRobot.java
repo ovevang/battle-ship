@@ -1,10 +1,7 @@
 package no.sonat.battleships;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import game.broadcast.GameIsStarted;
-import game.broadcast.NextPlayerTurn;
-import game.messages.GameMessage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -30,7 +27,7 @@ public abstract class AbstractRobot {
 
     public abstract void placeShips();
 
-    public abstract void onGameStart(GameIsStarted msg);
+    public abstract void onGameStart(JsonNode msg);
 
     public abstract void shoot();
 
@@ -50,21 +47,28 @@ public abstract class AbstractRobot {
             @Override
             public void onMessage(String s) {
 
-                GameMessage msg;
+                System.out.println(String.format("message received: %1$s", s));
+
+                JsonNode msg = null;
                 try {
-                    msg = json.readValue(s, GameMessage.class);
+                    msg = json.readTree(s);
                 } catch (IOException e) {
-                    throw new RuntimeException("Error unmarshalling game message");
+                    throw new RuntimeException("error reading json", e);
                 }
+                String type = msg.get("class").asText();
 
-                if (msg instanceof GameIsStarted) {
-                    onGameStart((GameIsStarted)msg);
-                } else if (msg instanceof NextPlayerTurn && ((NextPlayerTurn)msg).playerTurn == player) {
-                    shoot();
+                switch (type) {
+                    case "game.broadcast.GameIsStarted":
+                        onGameStart(msg);
+                        break;
+                    case "game.broadcast.NextPlayerTurn":
+                        if (msg.get("playerTurn").asInt() == player) {
+                            shoot();
+                        }
+                        break;
+                    default:
+                        break;
                 }
-
-                System.out.println("onMessage");
-                System.out.println(s);
             }
 
             @Override

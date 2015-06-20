@@ -9,14 +9,14 @@ import java.net.URISyntaxException;
 /**
  * Created by lars on 16.06.15.
  */
-public class App {
+public class Main {
 
     public static void main(String[] args) throws Exception {
 
         String gameId = args[0];
         int player = Integer.parseInt(args[1]);
 
-        AbstractRobot robot = new VeryDumbRobot(gameId,player );
+        VeryDumbRobot robot = new VeryDumbRobot(gameId,player );
 
         robot.initiate();
     }
