@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import no.sonat.battleships.models.Coordinate;
 import no.sonat.battleships.models.Ship;
-import no.sonat.battleships.models.DropBombMessage;
+import no.sonat.battleships.models.ShootMessage;
 import no.sonat.battleships.models.SetShipMessage;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -34,7 +34,8 @@ public class VeryDumbRobot {
 
     public void initiate() throws URISyntaxException {
 
-        this.wsClient = new WebSocketClient(new URI("ws://localhost:9000/game/" + gameId + "/socket")) {
+        this.wsClient = new WebSocketClient(new URI("ws://192.168.43.46:9000/game/" + gameId + "/socket")) {
+        //this.wsClient = new WebSocketClient(new URI("ws://sonat-battleships.herokuapp.com/game/" + gameId + "/socket")) {
             @Override
             public void onOpen(ServerHandshake serverHandshake) {
                 System.out.println("onOpen");
@@ -125,10 +126,10 @@ public class VeryDumbRobot {
         int idx = rand.nextInt(availableCoordinates.size());
         Coordinate coord = availableCoordinates.get(idx);
         availableCoordinates.remove(idx);
-        DropBombMessage dropBombMessage = new DropBombMessage(coord, player);
+        ShootMessage shootMessage = new ShootMessage(coord, player);
 
         try {
-            wsClient.send(json.writeValueAsString(dropBombMessage));
+            wsClient.send(json.writeValueAsString(shootMessage));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error marshalling object", e);
         }

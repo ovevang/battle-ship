@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by lars on 20.06.15.
  */
-public class DropBombMessage {
+public class ShootMessage {
 
     public final Coordinate coordinate;
     public final int player;
-    public final @JsonProperty("class") String metaType = "game.messages.DropBombMessage";
+    public final @JsonProperty("class") String metaType = "game.messages.ShootMessage";
 
-    public DropBombMessage(Coordinate coordinate, int player) {
+    public ShootMessage(Coordinate coordinate, int player) {
         this.coordinate = coordinate;
         this.player = player;
     }
