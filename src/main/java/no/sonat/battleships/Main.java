@@ -16,7 +16,7 @@ public class Main {
         String gameId = args[0];
         int player = Integer.parseInt(args[1]);
 
-        VeryDumbRobot robot = new VeryDumbRobot(gameId,player );
+        VerySmartRobot robot = new VerySmartRobot(gameId,player );
 
         robot.initiate();
     }
