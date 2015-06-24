@@ -34,8 +34,7 @@ public class VeryDumbRobot {
 
     public void initiate() throws URISyntaxException {
 
-        this.wsClient = new WebSocketClient(new URI("ws://192.168.43.46:9000/game/" + gameId + "/socket")) {
-        //this.wsClient = new WebSocketClient(new URI("ws://sonat-battleships.herokuapp.com/game/" + gameId + "/socket")) {
+        this.wsClient = new WebSocketClient(new URI("ws://10.0.0.4:9000/game/" + gameId + "/socket")) {
             @Override
             public void onOpen(ServerHandshake serverHandshake) {
                 System.out.println("onOpen");
@@ -48,13 +47,13 @@ public class VeryDumbRobot {
 
                 System.out.println(String.format("message received: %1$s", s));
 
-                JsonNode msg;
+                final JsonNode msg;
                 try {
                     msg = json.readTree(s);
                 } catch (IOException e) {
                     throw new RuntimeException("error reading json", e);
                 }
-                String type = msg.get("class").asText();
+                final String type = msg.get("class").asText();
 
                 switch (type) {
                     case "game.broadcast.GameIsStarted":
@@ -65,6 +64,10 @@ public class VeryDumbRobot {
                             shoot();
                         }
                         break;
+                    case "game.broadcast.GameOver":
+                        boolean weWon = msg.get("andTheWinnerIs").asInt() == player;
+                        System.out.println(weWon ? "We Won!!!" : "Wo lost!!!");
+                        System.exit(0);
                     default:
                         break;
                 }
