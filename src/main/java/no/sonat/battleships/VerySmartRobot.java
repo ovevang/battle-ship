@@ -43,7 +43,8 @@ public class VerySmartRobot {
             public void onOpen(ServerHandshake serverHandshake) {
                 System.out.println("onOpen");
 
-                placeShips();
+                //placeShipsDefault();
+                placeShipsForReal();
             }
 
             @Override
@@ -115,13 +116,38 @@ public class VerySmartRobot {
         }
     }
 
-    public void placeShips() {
+    public void placeShipsDefault() {
         SetShipMessage ship1 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(2,2), new Coordinate(2,3)}), player);
         SetShipMessage ship2 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(4,4), new Coordinate(4,5), new Coordinate(4,6)}), player);
         SetShipMessage ship3 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,1), new Coordinate(9,1), new Coordinate(10, 1)}), player);
         SetShipMessage ship4 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(1,1), new Coordinate(2,1), new Coordinate(3,1), new Coordinate(4,1)}), player);
         SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,5), new Coordinate(9,5), new Coordinate(10,5), new Coordinate(11,5)}), player);
         SetShipMessage ship6 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(11,7), new Coordinate(11,8),new Coordinate(11,9), new Coordinate(11,10), new Coordinate(11, 11)}), player);
+
+        try {
+            wsClient.send(json.writeValueAsString(ship1));
+            wsClient.send(json.writeValueAsString(ship2));
+            wsClient.send(json.writeValueAsString(ship3));
+            wsClient.send(json.writeValueAsString(ship4));
+            wsClient.send(json.writeValueAsString(ship5));
+            wsClient.send(json.writeValueAsString(ship6));
+        } catch (Exception e) {
+            throw new RuntimeException("marshalling failure", e);
+        }
+
+    }
+
+    public void placeShipsForReal() {
+        SetShipMessage ship1 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(5,5), new Coordinate(6,5)}), player);
+        SetShipMessage ship2 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(7,4), new Coordinate(7,5), new Coordinate(7,6)}), player);
+        SetShipMessage ship3 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(4,6), new Coordinate(4,7), new Coordinate(4, 8)}), player);
+//        SetShipMessage ship4 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(10,5), new Coordinate(10,6), new Coordinate(10,7), new Coordinate(10,8)}), player);
+//        SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(11,5), new Coordinate(11,6), new Coordinate(11,7), new Coordinate(11,8)}), player);
+        SetShipMessage ship4 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,5), new Coordinate(9,5), new Coordinate(10,5), new Coordinate(11,5)}), player);
+        SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,6), new Coordinate(9,6), new Coordinate(10,6), new Coordinate(11,6)}), player);
+
+
+        SetShipMessage ship6 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(0,2), new Coordinate(0,3),new Coordinate(0,4), new Coordinate(0,5), new Coordinate(0, 6)}), player);
 
         try {
             wsClient.send(json.writeValueAsString(ship1));
@@ -185,11 +211,12 @@ public class VerySmartRobot {
                     coord = ds.nextMiss();
                 }
             } catch (ExhaustedDirectionsException e) {
-                coord = availableCoordinates.get(rand.nextInt(availableCoordinates.size()));
+                coord = availableCoordinates.get(rand.nextInt(availableCoordinates.size())); // TODO: fix
                 System.out.printf("Exhausted all possibilities ;/");
                 state = FiringState.SEEKING;
                 ds = null;
             }
+            availableCoordinates.remove(coord);
             ShootMessage shootMessage = new ShootMessage(coord, player);
 
             try {
