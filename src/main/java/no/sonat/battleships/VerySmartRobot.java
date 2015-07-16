@@ -73,7 +73,7 @@ public class VerySmartRobot {
                         handleResult(msg);
                         break;
                     case "game.broadcast.GameOver":
-                        boolean weWon = msg.get("andTheWinnerIs").asInt() == player;
+                        boolean weWon = msg.get("andTheWinnerIs").asText().equals("Player " + player);
                         System.out.println(weWon ? "We Won!!!" : "Wo lost!!!");
                         System.exit(0);
                     default:
@@ -141,10 +141,8 @@ public class VerySmartRobot {
         SetShipMessage ship1 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(5,5), new Coordinate(6,5)}), player);
         SetShipMessage ship2 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(7,4), new Coordinate(7,5), new Coordinate(7,6)}), player);
         SetShipMessage ship3 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(4,6), new Coordinate(4,7), new Coordinate(4, 8)}), player);
-//        SetShipMessage ship4 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(10,5), new Coordinate(10,6), new Coordinate(10,7), new Coordinate(10,8)}), player);
-//        SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(11,5), new Coordinate(11,6), new Coordinate(11,7), new Coordinate(11,8)}), player);
         SetShipMessage ship4 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,5), new Coordinate(9,5), new Coordinate(10,5), new Coordinate(11,5)}), player);
-        SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,6), new Coordinate(9,6), new Coordinate(10,6), new Coordinate(11,6)}), player);
+        SetShipMessage ship5 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(8,6), new Coordinate(8,7), new Coordinate(8,8), new Coordinate(8,9)}), player);
 
 
         SetShipMessage ship6 = new SetShipMessage(new Ship(new Coordinate[] {new Coordinate(0,2), new Coordinate(0,3),new Coordinate(0,4), new Coordinate(0,5), new Coordinate(0, 6)}), player);
@@ -187,6 +185,7 @@ public class VerySmartRobot {
             do {
                 idx = rand.nextInt(availableCoordinates.size());
                 coord = availableCoordinates.get(idx);
+                System.out.print(".");
             }while(!(coord.y % 2 == 0 && coord.x % 2 ==0 || coord.y % 2 != 0 && coord.x % 2 != 0));
 
             availableCoordinates.remove(idx);
