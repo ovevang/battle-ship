@@ -1,5 +1,6 @@
 package no.sonat.battleships;
 
+import net.relativt.battlecodeships.bot.BattleCodeShipsServer;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -13,11 +14,12 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String gameId = args[0];
-        int player = Integer.parseInt(args[1]);
+        final BattleCodeShipsServer server = BattleCodeShipsServer.builder()
+                .withUrl("ws://www.battlecodeships.com/ws")
+                .withBotName("QuiteSmartRobot")
+                .withGameFactory((gameId) -> new VerySmartRobot())
+                .build();
 
-        VerySmartRobot robot = new VerySmartRobot(gameId,player );
-
-        robot.initiate();
+        server.start();
     }
 }

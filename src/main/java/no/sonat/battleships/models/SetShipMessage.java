@@ -1,6 +1,7 @@
 package no.sonat.battleships.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.relativt.battlecodeships.bot.model.Ship;
 
 /**
  * Created by lars on 20.06.15.

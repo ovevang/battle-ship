@@ -1,5 +1,6 @@
 package no.sonat.battleships.models;
 
+import net.relativt.battlecodeships.bot.model.Coordinate;
 import no.sonat.battleships.VerySmartRobot;
 
 public class DirectionStrategy {

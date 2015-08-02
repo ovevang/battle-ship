@@ -2,6 +2,7 @@ package no.sonat.battleships.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.relativt.battlecodeships.bot.model.Coordinate;
 
 /**
  * Created by lars on 20.06.15.
