@@ -16,7 +16,7 @@ public class Main {
 
         final BattleCodeShipsServer server = BattleCodeShipsServer.builder()
                 .withUrl("ws://www.battlecodeships.com/ws")
-                .withBotName("QuiteSmartRobot")
+                .withBotName("R. Daneel Olivaw")
                 .withGameFactory((gameId) -> new VerySmartRobot())
                 .build();
 

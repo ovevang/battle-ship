@@ -1,23 +1,18 @@
 package no.sonat.battleships;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.relativt.battlecodeships.bot.Bot;
 import net.relativt.battlecodeships.bot.GameResult;
-import net.relativt.battlecodeships.bot.model.*;
+import net.relativt.battlecodeships.bot.model.Coordinate;
+import net.relativt.battlecodeships.bot.model.Ship;
+import net.relativt.battlecodeships.bot.model.ShotResult;
 import no.sonat.battleships.models.DirectionStrategy;
 import no.sonat.battleships.models.ExhaustedDirectionsException;
 import no.sonat.battleships.models.FiringState;
-import no.sonat.battleships.models.ShootMessage;
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -29,7 +24,7 @@ public class VerySmartRobot extends Bot {
 
     final public static ArrayList<Coordinate> hitCoordinates = new ArrayList<>();
     final ObjectMapper json = new ObjectMapper();
-    final public static List<Coordinate> availableCoordinates = new ArrayList<>();
+    public static List<Coordinate> availableCoordinates = new ArrayList<>();
 
     WebSocketClient wsClient;
     private Coordinate lastFired;
@@ -78,6 +73,7 @@ public class VerySmartRobot extends Bot {
             }while(!(coord.y % 2 == 0 && coord.x % 2 ==0 || coord.y % 2 != 0 && coord.x % 2 != 0));
 
             availableCoordinates.remove(idx);
+            logger.info("Shooting at {}. Remaining coordinates {}", coord, availableCoordinates);
             shoot(coord);
             lastFired = coord;
 
@@ -111,16 +107,62 @@ public class VerySmartRobot extends Bot {
     @Override
     public void placeShips(List<Integer> ships) {
         int x = 0;
-
+        List<Coordinate> availablePlacementCoordinate = new ArrayList<>();
+        availablePlacementCoordinate.addAll(availableCoordinates);
+        Coordinate coordinate = null;
+        Ship.Orientation o;
         for (Integer shipSize : ships) {
-            final Coordinate coordinate = new Coordinate(x++, random.nextInt(6));
-            placeShip(coordinate, Ship.Orientation.VERTICAL, shipSize);
-            logger.info("Placing a ship of size {} in position {}", shipSize, coordinate);
+            boolean placementValid = false;
+            List<Coordinate> currentShip = new ArrayList<>();
+            do {
+                o = random.nextInt(2) >= 1 ? Ship.Orientation.VERTICAL : Ship.Orientation.HORIZONTAL;
+
+                outer: switch (o) {
+                    case VERTICAL:
+                        coordinate = new Coordinate(random.nextInt(12), Math.max(random.nextInt(12) - shipSize, 0));
+                        for (int yy = coordinate.y; yy < coordinate.y + shipSize; yy++) {
+                            if (!availablePlacementCoordinate.contains(new Coordinate(coordinate.x, yy))) {
+                                placementValid = false;
+                                break outer;
+                            }else{
+                                currentShip.add(new Coordinate(coordinate.x, yy));
+                            }
+                        }
+                        placementValid = true;
+                        logger.debug("Valid vertical placement. Removing coordinates: {}", currentShip);
+                        availablePlacementCoordinate.removeAll(currentShip);
+                        break;
+                    case HORIZONTAL:
+                        coordinate = new Coordinate(Math.max(random.nextInt(12) - shipSize, 0), random.nextInt(12));
+                        for (int xx = coordinate.x; xx < coordinate.x + shipSize; xx++) {
+                            if (!availablePlacementCoordinate.contains(new Coordinate(xx, coordinate.y))) {
+                                placementValid = false;
+                                break outer;
+                            } else{
+                                currentShip.add(new Coordinate(xx, coordinate.y));
+                            }
+                        }
+                        placementValid = true;
+                        logger.info("Valid horizontal placement. Removing coordinates: {}", currentShip);
+                        availablePlacementCoordinate.removeAll(currentShip);
+                        break;
+                }
+            }while(placementValid==false);
+
+
+
+            try{
+                placeShip(coordinate, o, shipSize);
+                logger.info("Placed a ship of size {} in position {}", shipSize, coordinate);
+            }catch(Exception e){
+                logger.error("Some error occurred, gitt", e);
+            }
         }
     }
 
     @Override
     public void initializeBoard(int width, int height) {
+        availableCoordinates = new ArrayList<>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 availableCoordinates.add(new Coordinate(x, y));
@@ -141,7 +183,7 @@ public class VerySmartRobot extends Bot {
 
     @Override
     public void onGameCompletion(GameResult gameResult) {
-        System.out.println(gameResult);
+        logger.info(gameResult.toString());
 
     }
 }
