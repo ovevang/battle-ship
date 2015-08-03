@@ -2,16 +2,19 @@ package no.sonat.battleships.models;
 
 import net.relativt.battlecodeships.bot.model.Coordinate;
 import no.sonat.battleships.VerySmartRobot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DirectionStrategy {
 
+    private final Logger logger = LoggerFactory.getLogger(DirectionStrategy.class);
     private Coordinate initialHit;
     private Coordinate currentShot;
     private Direction currentDirection;
     private enum Direction { NORTH, SOUTH, EAST, WEST };
 
     public DirectionStrategy(Coordinate initialHit) {
-        System.out.println("Creating new DS with initialHit " + initialHit);
+        logger.info("Creating new DS with initialHit " + initialHit);
         this.initialHit = initialHit;
         currentShot = initialHit;
         currentDirection = Direction.NORTH;
@@ -19,13 +22,12 @@ public class DirectionStrategy {
 
     public Coordinate nextHit() throws ExhaustedDirectionsException {
 
-        System.out.println("Next hit");
         Coordinate proposedCoordinate = null;
         proposedCoordinate = getNextCoordinate();
         if (!isInsideBoard(proposedCoordinate)){
             if (tryNextDirection() == true) {
                 currentShot = initialHit;
-                System.out.println("changed direction to " + currentDirection);
+                logger.debug("changed direction to " + currentDirection);
                 return nextHit();
             }else{
                 throw new ExhaustedDirectionsException();
@@ -35,12 +37,12 @@ public class DirectionStrategy {
                 currentShot = proposedCoordinate;
                 return proposedCoordinate;
             }else if (VerySmartRobot.hitCoordinates.contains(proposedCoordinate)){
-                System.out.println(proposedCoordinate + " already hit, trying further ahead");
+                logger.debug(proposedCoordinate + " already hit, trying further ahead");
                 currentShot = proposedCoordinate;
                 return nextHit();
             }else{
                 if (tryNextDirection() == true){
-                    System.out.println("changed direction to " + currentDirection);
+                    logger.debug("changed direction to " + currentDirection);
                     currentShot = initialHit;
                     return nextHit();
                 }else{

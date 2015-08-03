@@ -25,7 +25,7 @@ public class VerySmartRobot extends Bot {
     final public static ArrayList<Coordinate> hitCoordinates = new ArrayList<>();
     final ObjectMapper json = new ObjectMapper();
     public static List<Coordinate> availableCoordinates = new ArrayList<>();
-
+    private static int CURRENT_PARITY;
     WebSocketClient wsClient;
     private Coordinate lastFired;
     private FiringState state = FiringState.SEEKING;
@@ -39,15 +39,15 @@ public class VerySmartRobot extends Bot {
 
     private void handleResult(ShotResult result) {
         if( result == ShotResult.MISS){
-            System.out.println(lastFired + " Miss");
+            logger.info(lastFired + " Miss");
             lastFiredResult = "MISS";
         } else if(result == ShotResult.HIT){
-            System.out.println("HIT: " + lastFired);
+            logger.info("HIT: " + lastFired);
             state = FiringState.SINKING;
             hitCoordinates.add(lastFired);
             lastFiredResult = "HIT";
         } else {
-            System.out.println("SUNK: " + lastFired);
+            logger.info("SUNK: " + lastFired);
             state = FiringState.SEEKING;
             hitCoordinates.add(lastFired);
             lastFiredResult = "SUNK";
@@ -66,11 +66,25 @@ public class VerySmartRobot extends Bot {
             int idx = 0;
             Coordinate coord = null;
 
-            do {
-                idx = random.nextInt(availableCoordinates.size());
-                coord = availableCoordinates.get(idx);
-                System.out.print(".");
-            }while(!(coord.y % 2 == 0 && coord.x % 2 ==0 || coord.y % 2 != 0 && coord.x % 2 != 0));
+            if (availableCoordinates.size()<90 && CURRENT_PARITY != 2){ // TODO: magic number? When do we "know" that
+                                                                        // remaining boat is not to be found when shooting 3 apart?
+                logger.info("Swapping parity to 2");
+                CURRENT_PARITY = 2;
+            }
+
+            if (CURRENT_PARITY == 2) {
+                do {
+                    idx = random.nextInt(availableCoordinates.size());
+                    coord = availableCoordinates.get(idx);
+                    System.out.print(".");
+                } while (!(coord.y % 2 == coord.x % 2)); // every other square in a lattice
+            }else{
+                do {
+                    idx = random.nextInt(availableCoordinates.size());
+                    coord = availableCoordinates.get(idx);
+                    System.out.print(".");
+                } while (!((coord.x + (coord.y%3)) % 3 == 0)); // every third square, offset by one per vertical row
+            }
 
             availableCoordinates.remove(idx);
             logger.info("Shooting at {}. Remaining coordinates {}", coord, availableCoordinates);
@@ -162,6 +176,7 @@ public class VerySmartRobot extends Bot {
 
     @Override
     public void initializeBoard(int width, int height) {
+        CURRENT_PARITY = 3;
         availableCoordinates = new ArrayList<>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
